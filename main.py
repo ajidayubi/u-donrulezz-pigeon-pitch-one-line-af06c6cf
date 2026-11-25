@@ -28,12 +28,19 @@ MAX_CHARS = 200
 
 
 def gate_ok(text):
-    """Mirror the competition gate: 1-200 chars, one line, not blank."""
+    """Mirror the competition gate: 1-200 chars, one line, not blank.
+
+    A stray control character would survive a plain length check but is
+    not part of any pitch the judge should read, so the mirror rejects
+    it too: the bytes on disk must be clean printable text.
+    """
     if not 1 <= len(text) <= MAX_CHARS:
         return False
     if not text.strip():
         return False
     if "\n" in text or "\r" in text:
+        return False
+    if any(ord(ch) < 32 for ch in text):
         return False
     return True
 
